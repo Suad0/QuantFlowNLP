@@ -213,9 +213,9 @@ Run `make help` to see all available commands.
 
 ## License
 
-[Add your license here]
 
 ## Contributing
 
-[Add contribution guidelines here]
+Just clone and do whatever you want but ask me first 
+
 # QuantFlowNLP
