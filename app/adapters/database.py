@@ -261,6 +261,21 @@ class DatabaseManager:
 _db_manager: Optional[DatabaseManager] = None
 
 
+async def init_database() -> None:
+    """Initialize global database connection and schema.
+    
+    This should be called during application startup.
+    Creates the database manager, establishes connection, and initializes schema.
+    """
+    global _db_manager
+    
+    if _db_manager is None:
+        _db_manager = DatabaseManager()
+        await _db_manager.connect()
+        await _db_manager.initialize_schema()
+        logger.info("Global database manager initialized")
+
+
 async def get_database() -> aiosqlite.Connection:
     """Get database connection for dependency injection.
     
@@ -273,9 +288,7 @@ async def get_database() -> aiosqlite.Connection:
     global _db_manager
     
     if _db_manager is None:
-        _db_manager = DatabaseManager()
-        await _db_manager.connect()
-        await _db_manager.initialize_schema()
+        await init_database()
     
     return await _db_manager.get_connection()
 
@@ -290,3 +303,4 @@ async def close_database() -> None:
     if _db_manager:
         await _db_manager.disconnect()
         _db_manager = None
+        logger.info("Global database manager closed")

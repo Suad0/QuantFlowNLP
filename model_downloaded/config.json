@@ -1,0 +1,18 @@
+{
+  "model_type": "LightweightXLSTM",
+  "input_features": [
+    "open",
+    "high",
+    "low",
+    "close",
+    "volume",
+    "news_score"
+  ],
+  "sequence_length": 60,
+  "hidden_dim": 32,
+  "num_layers": 2,
+  "attention_heads": 4,
+  "device": "cpu",
+  "inference_time_ms": "1-2ms",
+  "model_size_kb": 71.6
+}

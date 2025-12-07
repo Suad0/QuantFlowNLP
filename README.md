@@ -91,6 +91,23 @@ make init-db
 uv run python scripts/init_db.py
 ```
 
+### 7. Load pre-trained scaler parameters (Optional but Recommended)
+
+The system includes a pre-trained xLSTM model in the `model_downloaded/` directory. To ensure feature normalization during inference matches the model's training data, load the scaler parameters:
+
+```bash
+# Load for default symbol (AAPL - used during training)
+uv run python scripts/load_scaler_params.py
+
+# Load for a different symbol
+uv run python scripts/load_scaler_params.py --symbol TSLA
+
+# Use a custom scaler file
+uv run python scripts/load_scaler_params.py --symbol AAPL --scaler-file path/to/scaler_params.json
+```
+
+This script reads the scaler parameters (mean and standard deviation) from `model_downloaded/scaler_params.json` and inserts them into the database for the specified trading symbol. The parameters ensure that features are normalized consistently with the model's training data.
+
 ## Usage
 
 ### Running the application

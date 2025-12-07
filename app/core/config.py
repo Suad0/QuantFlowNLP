@@ -42,6 +42,10 @@ class Settings(BaseSettings):
         default="./chroma_data",
         description="ChromaDB persistence directory",
     )
+    chromadb_use_persistent: bool = Field(
+        default=True,
+        description="Use persistent local storage (True) or HTTP client (False)",
+    )
 
     # Ollama Configuration
     ollama_base_url: str = Field(
@@ -105,7 +109,7 @@ class Settings(BaseSettings):
         description="Default sequence length (168 = 1 week hourly)",
     )
     feature_target_frequency: str = Field(
-        default="1H",
+        default="1h",
         description="Target frequency for resampling",
     )
     feature_columns: list[str] = Field(

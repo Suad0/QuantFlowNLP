@@ -224,6 +224,23 @@ class AnalysisRepository(ABC):
         """
         pass
 
+    @abstractmethod
+    async def get_news_scores_by_time_range(
+        self,
+        start_time: datetime,
+        end_time: datetime,
+    ) -> List[tuple[datetime, float]]:
+        """Get news scores within a time range.
+        
+        Args:
+            start_time: Start of time range
+            end_time: End of time range
+            
+        Returns:
+            List of (timestamp, news_score) tuples
+        """
+        pass
+
 
 class OHLCVRepository(ABC):
     """Repository interface for OHLCV market data operations.

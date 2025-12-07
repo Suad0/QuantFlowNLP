@@ -211,6 +211,42 @@ class SQLiteAnalysisRepository(AnalysisRepository):
             logger.error(f"Failed to list analyses by score range: {e}")
             raise AnalysisRepositoryError(f"Failed to list analyses: {e}") from e
 
+    async def get_news_scores_by_time_range(
+        self,
+        start_time: datetime,
+        end_time: datetime,
+    ) -> List[tuple[datetime, float]]:
+        """Get news scores within a time range.
+        
+        Args:
+            start_time: Start of time range
+            end_time: End of time range
+            
+        Returns:
+            List of (timestamp, news_score) tuples
+        """
+        try:
+            cursor = await self.connection.execute(
+                """
+                SELECT analyzed_at, news_score
+                FROM article_analysis
+                WHERE analyzed_at >= ? AND analyzed_at <= ?
+                ORDER BY analyzed_at ASC
+                """,
+                (start_time.isoformat(), end_time.isoformat()),
+            )
+            rows = await cursor.fetchall()
+            await cursor.close()
+            
+            return [
+                (datetime.fromisoformat(row[0]), row[1])
+                for row in rows
+            ]
+            
+        except Exception as e:
+            logger.error(f"Failed to get news scores by time range: {e}")
+            raise AnalysisRepositoryError(f"Failed to get news scores: {e}") from e
+
     def _row_to_analysis(self, row: tuple) -> ArticleAnalysis:  # type: ignore[type-arg]
         """Convert database row to ArticleAnalysis object.
         

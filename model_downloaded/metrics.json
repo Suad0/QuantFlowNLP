@@ -1,0 +1,10 @@
+{
+  "mse": 59.6539306640625,
+  "rmse": 7.72359561920166,
+  "mae": 2.19002366065979,
+  "n_parameters": 18337,
+  "training_samples": 785124,
+  "validation_samples": 196281,
+  "best_epoch": 5,
+  "final_val_loss": 59.65204773582384
+}

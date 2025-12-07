@@ -29,6 +29,7 @@ class ChromaDBClient:
         host: Optional[str] = None,
         port: Optional[int] = None,
         persist_directory: Optional[str] = None,
+        use_persistent_client: bool = True,
     ):
         """Initialize ChromaDB client.
         
@@ -36,10 +37,12 @@ class ChromaDBClient:
             host: ChromaDB host (defaults to settings)
             port: ChromaDB port (defaults to settings)
             persist_directory: Directory for persistent storage (defaults to settings)
+            use_persistent_client: If True, use local persistent storage; if False, use HTTP client
         """
         self.host = host or settings.chromadb_host
         self.port = port or settings.chromadb_port
         self.persist_directory = persist_directory or settings.chromadb_persist_directory
+        self.use_persistent_client = use_persistent_client
         
         self._client: Optional[chromadb.Client] = None
         self._collection: Optional[chromadb.Collection] = None
@@ -54,27 +57,44 @@ class ChromaDBClient:
             VectorRepositoryError: If connection fails
         """
         try:
-            logger.info(
-                "Connecting to ChromaDB",
-                extra={
-                    "host": self.host,
-                    "port": self.port,
-                    "persist_directory": self.persist_directory,
-                },
-            )
-            
-            # Run blocking ChromaDB operations in thread pool
-            self._client = await asyncio.to_thread(
-                chromadb.HttpClient,
-                host=self.host,
-                port=self.port,
-                settings=ChromaSettings(
-                    anonymized_telemetry=False,
-                    allow_reset=False,
-                ),
-            )
-            
-            logger.info("ChromaDB client connected successfully")
+            if self.use_persistent_client:
+                # Use local persistent storage (no server needed)
+                logger.info(
+                    "Connecting to ChromaDB with persistent storage",
+                    extra={"persist_directory": self.persist_directory},
+                )
+                
+                self._client = await asyncio.to_thread(
+                    chromadb.PersistentClient,
+                    path=self.persist_directory,
+                    settings=ChromaSettings(
+                        anonymized_telemetry=False,
+                        allow_reset=False,
+                    ),
+                )
+                
+                logger.info(f"ChromaDB persistent client connected at {self.persist_directory}")
+            else:
+                # Use HTTP client (requires server)
+                logger.info(
+                    "Connecting to ChromaDB server",
+                    extra={
+                        "host": self.host,
+                        "port": self.port,
+                    },
+                )
+                
+                self._client = await asyncio.to_thread(
+                    chromadb.HttpClient,
+                    host=self.host,
+                    port=self.port,
+                    settings=ChromaSettings(
+                        anonymized_telemetry=False,
+                        allow_reset=False,
+                    ),
+                )
+                
+                logger.info("ChromaDB HTTP client connected successfully")
             
         except Exception as e:
             logger.error(f"Failed to connect to ChromaDB: {e}")
